@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["one","Allow the mutable reference `data` to be mutated while aliased."],["slice","Allow the contents of the mutable slice `data` to be mutated while aliased."]]});

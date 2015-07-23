@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `alias` crate.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, alias">
+
+    <title>alias - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <section class="sidebar">
+        
+        <p class='location'></p><script>window.sidebarCurrent = {name: 'alias', ty: 'mod', relpath: '../'};</script>
+    </section>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content mod">
+<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>alias</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-0' class='srclink' href='../src/alias/lib.rs.html#1-200' title='goto source code'>[src]</a></span></h1>
+<div class='docblock'><p><code>alias</code> offers some basic ways to mutate data while
+aliased. <a href="https://crates.io/crates/alias"><img src="https://img.shields.io/crates/v/alias.svg" alt="crates.io"></a></p>
+
+<p><a href="https://github.com/huonw/alias"><em>Source</em></a></p>
+
+<h1 id="examples" class='section-header'><a
+                           href="#examples">Examples</a></h1><pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>x</span> <span class='op'>=</span> <span class='number'>0</span>;
+
+<span class='kw'>let</span> <span class='ident'>y</span> <span class='op'>=</span> <span class='ident'>alias</span>::<span class='ident'>one</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>x</span>);
+<span class='kw'>let</span> <span class='ident'>z</span> <span class='op'>=</span> <span class='ident'>y</span>;
+
+<span class='comment'>// now we can read/write through multiple references</span>
+<span class='ident'>z</span>.<span class='ident'>set</span>(<span class='number'>10</span>);
+<span class='ident'>y</span>.<span class='ident'>set</span>(<span class='ident'>y</span>.<span class='ident'>get</span>() <span class='op'>+</span> <span class='number'>2</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>z</span>.<span class='ident'>get</span>(), <span class='number'>12</span>);
+</pre>
+<pre class='rust rust-example-rendered'>
+<span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>x</span> <span class='op'>=</span> [<span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>, <span class='number'>0</span>];
+
+<span class='kw'>let</span> <span class='ident'>y</span> <span class='op'>=</span> <span class='ident'>alias</span>::<span class='ident'>slice</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>x</span>);
+<span class='kw'>let</span> <span class='ident'>z</span> <span class='op'>=</span> <span class='ident'>y</span>;
+
+<span class='comment'>// now we can read/write through multiple references</span>
+<span class='kw'>for</span> <span class='ident'>i</span> <span class='kw'>in</span> <span class='number'>0</span>..<span class='number'>4</span> {
+    <span class='ident'>z</span>[<span class='ident'>i</span>].<span class='ident'>set</span>(<span class='number'>10</span>);
+    <span class='ident'>y</span>[<span class='ident'>i</span>].<span class='ident'>set</span>(<span class='ident'>y</span>[<span class='ident'>i</span>].<span class='ident'>get</span>() <span class='op'>+</span> <span class='ident'>i</span>);
+}
+
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>z</span>[<span class='number'>0</span>].<span class='ident'>get</span>(), <span class='number'>10</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>z</span>[<span class='number'>1</span>].<span class='ident'>get</span>(), <span class='number'>11</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>z</span>[<span class='number'>2</span>].<span class='ident'>get</span>(), <span class='number'>12</span>);
+<span class='macro'>assert_eq</span><span class='macro'>!</span>(<span class='ident'>z</span>[<span class='number'>3</span>].<span class='ident'>get</span>(), <span class='number'>13</span>);
+</pre>
+
+<h1 id="how-is-this-ok?" class='section-header'><a
+                           href="#how-is-this-ok?">How is this OK?</a></h1>
+<p>Rust&#39;s safety guarantees hinge around control how data is
+aliased/can be manipulated while aliased. Key to this are the <code>&amp;</code>
+(shared/&quot;immutable&quot;) and <code>&amp;mut</code> (unique/mutable) reference types.</p>
+
+<p>The latter essentially has the guarantee that if <code>x: &amp;mut T</code> is
+accessible, then it is the only usable path to the <code>T</code> to which it
+points. This ensures arbitrary mutation is entirely safe,
+e.g. there&#39;s no way to invalidate other references because there
+are no other references.</p>
+
+<p>On the other hand, <code>&amp;T</code> references can be arbitrarily aliased
+(possibly in a large number of threads), and so mutation cannot
+occur by default. However, it can occur via specialised types that
+control what mutation can happen, such as
+<code>std::cell::Cell&lt;T&gt;</code>. That type is a plain wrapper around <code>T</code> that
+only works with a subset of possible <code>T</code>s (<code>T: Copy</code>). These types
+all assume they have full control over access to their internal
+data: they mediate every interaction.</p>
+
+<p>If one has unique access to some piece of data (<code>&amp;mut T</code>), it is
+definitely safe to treat it as aliased (<code>&amp;T</code>), but it is also safe
+to treat it as aliased and mutable (<code>&amp;Cell&lt;T&gt;</code>). No other piece of
+code can be manipulating the <code>T</code> via any other path while the
+<code>&amp;mut T</code> reference exists (and lifetimes ensures <code>&amp;Cell&lt;T&gt;</code> cannot
+outlive it), so no other piece of code can do anything that
+violates the assumption that the <code>Cell</code> controls every
+interaction.</p>
+
+<p>This also relies on <code>T</code> → <code>Cell&lt;T&gt;</code> being a valid transmute, that
+is, the layouts being identical. Strictly speaking, this isn&#39;t
+guaranteed, but it is unlikely for it to remain this way. (There&#39;s
+an additional factor of <code>Cell</code> theoretically having more layout
+optimisations possible due to the way it restricts access to its
+internals.)</p>
+</div><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
+<table>
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.one.html'
+                               title='alias::one'>one</a></td>
+                        <td class='docblock short'>
+                             <p>Allow the mutable reference <code>data</code> to be mutated while aliased.</p>
+
+                        </td>
+                    </tr>
+                
+                    <tr class=' module-item'>
+                        <td><a class='fn' href='fn.slice.html'
+                               title='alias::slice'>slice</a></td>
+                        <td class='docblock short'>
+                             <p>Allow the contents of the mutable slice <code>data</code> to be mutated while
+aliased.</p>
+
+                        </td>
+                    </tr>
+                </table></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <div id="help" class="hidden">
+        <div class="shortcuts">
+            <h1>Keyboard Shortcuts</h1>
+            <dl>
+                <dt>?</dt>
+                <dd>Show this help dialog</dd>
+                <dt>S</dt>
+                <dd>Focus the search field</dd>
+                <dt>&larrb;</dt>
+                <dd>Move up in search results</dd>
+                <dt>&rarrb;</dt>
+                <dd>Move down in search results</dd>
+                <dt>&#9166;</dt>
+                <dd>Go to active search result</dd>
+            </dl>
+        </div>
+        <div class="infos">
+            <h1>Search Tricks</h1>
+            <p>
+                Prefix searches with a type followed by a colon (e.g.
+                <code>fn:</code>) to restrict the search to a given type.
+            </p>
+            <p>
+                Accepted types are: <code>fn</code>, <code>mod</code>,
+                <code>struct</code>, <code>enum</code>,
+                <code>trait</code>, <code>typedef</code> (or
+                <code>tdef</code>).
+            </p>
+            <p>
+                Search functions by type signature (e.g.
+                <code>vec -> usize</code>)
+            </p>
+        </div>
+    </div>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "alias";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script async src="../search-index.js"></script>
+</body>
+</html>
