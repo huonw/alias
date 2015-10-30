@@ -67,7 +67,7 @@
 //!
 //! This also relies on `T` → `Cell<T>` being a valid transmute, that
 //! is, the layouts being identical. Strictly speaking, this isn't
-//! guaranteed, but it is unlikely for it to remain this way. (There's
+//! guaranteed, but it is likely for it to remain this way. (There's
 //! an additional factor of `Cell` theoretically having more layout
 //! optimisations possible due to the way it restricts access to its
 //! internals.)
