@@ -6,13 +6,7 @@ authors = ["Huon Wilson <dbau.pp+github@gmail.com>"]
 homepage = "https://github.com/huonw/alias"
 repository = "https://github.com/huonw/alias"
 documentation = "http://huonw.github.io/alias/alias/"
-license = "MIT/Apache-2.0"
+license = "MIT OR Apache-2.0"
 keywords = ["aliased-mutability", "aliasing", "cell"]
 readme = "README.md"
-description = """
-`alias` offers some basic ways to mutate data while
-aliased.
-"""
-
-[features]
-unstable = []
+description = "alias offers some basic ways to mutate data while aliased."

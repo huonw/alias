@@ -1,7 +1,9 @@
-//! `alias` offers some basic ways to mutate data while
-//! aliased. [![crates.io](https://img.shields.io/crates/v/alias.svg)](https://crates.io/crates/alias)
+//! [![crates.io](https://img.shields.io/crates/v/alias.svg)](https://crates.io/crates/alias)
+//! ![MSRV](https://img.shields.io/badge/MSRV-1.37.0-informational)
 //!
-//! [*Source*](https://github.com/huonw/alias)
+//! `alias` offers some basic ways to mutate data while aliased.
+//!
+//! [**Source**](https://github.com/huonw/alias)
 //!
 //! # Examples
 //!
@@ -64,16 +66,10 @@
 //! outlive it), so no other piece of code can do anything that
 //! violates the assumption that the `Cell` controls every
 //! interaction.
-//!
-//! This also relies on `T` → `Cell<T>` being a valid transmute, that
-//! is, the layouts being identical. Strictly speaking, this isn't
-//! guaranteed, but it is likely for it to remain this way. (There's
-//! an additional factor of `Cell` theoretically having more layout
-//! optimisations possible due to the way it restricts access to its
-//! internals.)
 
-use std::mem;
-use std::cell::Cell;
+#![no_std]
+
+use core::cell::Cell;
 
 /// Allow the mutable reference `data` to be mutated while aliased.
 ///
@@ -90,8 +86,8 @@ use std::cell::Cell;
 /// y.set(y.get() + 2);
 /// assert_eq!(z.get(), 12);
 /// ```
-pub fn one<'a, T: Copy>(data: &'a mut T) -> &'a Cell<T> {
-    unsafe { mem::transmute(data) }
+pub fn one<T: ?Sized>(data: &mut T) -> &Cell<T> {
+    Cell::from_mut(data)
 }
 
 /// Allow the contents of the mutable slice `data` to be mutated while
@@ -116,8 +112,8 @@ pub fn one<'a, T: Copy>(data: &'a mut T) -> &'a Cell<T> {
 /// assert_eq!(z[2].get(), 12);
 /// assert_eq!(z[3].get(), 13);
 /// ```
-pub fn slice<'a, T: Copy>(data: &'a mut [T]) -> &'a [Cell<T>] {
-    unsafe { mem::transmute(data) }
+pub fn slice<T>(data: &mut [T]) -> &[Cell<T>] {
+    Cell::from_mut(data).as_slice_of_cells()
 }
 
 #[cfg(test)]
@@ -129,15 +125,25 @@ mod tests {
         x: u8,
         y: u64,
         z: i8,
-        w: &'a u32
+        w: &'a u32,
     }
 
     #[test]
     fn smoke_one() {
         let a = 1;
         let b = 2;
-        let val = X { x: 0xAA, y: !0, z: 0x77, w: &a };
-        let val2 = X { x: 0x33, y: !0, z: 0x55, w: &b };
+        let val = X {
+            x: 0xAA,
+            y: !0,
+            z: 0x77,
+            w: &a,
+        };
+        let val2 = X {
+            x: 0x33,
+            y: !0,
+            z: 0x55,
+            w: &b,
+        };
         let mut x = Some(val);
 
         {
@@ -147,9 +153,12 @@ mod tests {
             assert_eq!(y.get(), Some(val));
             assert_eq!(z.get(), Some(val));
 
-            z.set(Some(X { x: 1, .. y.get().unwrap()}));
-            assert_eq!(y.get(), Some(X { x: 1, .. val }));
-            assert_eq!(z.get(), Some(X { x: 1, .. val }));
+            z.set(Some(X {
+                x: 1,
+                ..y.get().unwrap()
+            }));
+            assert_eq!(y.get(), Some(X { x: 1, ..val }));
+            assert_eq!(z.get(), Some(X { x: 1, ..val }));
 
             z.set(None);
             assert!(y.get().is_none());
@@ -162,12 +171,23 @@ mod tests {
 
         assert_eq!(x, Some(val2));
     }
+
     #[test]
     fn smoke_slice() {
         let a = 1;
         let b = 2;
-        let val = X { x: 0xAA, y: !0, z: 0x77, w: &a };
-        let val2 = X { x: 0x33, y: !0, z: 0x55, w: &b };
+        let val = X {
+            x: 0xAA,
+            y: !0,
+            z: 0x77,
+            w: &a,
+        };
+        let val2 = X {
+            x: 0x33,
+            y: !0,
+            z: 0x55,
+            w: &b,
+        };
 
         let mut x = [Some(val), Some(val2), None];
 
